@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE    = 'techstore-app'
         DOCKER_HUB_USER = 'zeynepa05'                // Docker Hub kullanıcı adınızla eşitlendi
-        SONAR_HOST      = 'http://host.docker.internal:9000' // Sihirli Docker köprü adresi eklendi!
+        SONAR_HOST      = 'http://192.168.1.35:9000'
         SONAR_TOKEN     = credentials('sonar-token') // Jenkins Credentials'daki Sonar Token
     }
 
