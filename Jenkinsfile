@@ -173,7 +173,8 @@ pipeline {
         }
     }
 
-   // ── POST ACTIONS ────────────────────────────────────────────
+    // ── POST ACTIONS ────────────────────────────────────────────
+    // ── POST ACTIONS ────────────────────────────────────────────
     post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
@@ -204,7 +205,9 @@ pipeline {
 • Detay: ${env.BUILD_URL}console
                 """
             )
-        } always {
+        }
+    
+        always {
             // Eski imajları temizle (son 3'ü tut)
             sh "docker image prune -f --filter 'until=72h' || true"
             cleanWs()
