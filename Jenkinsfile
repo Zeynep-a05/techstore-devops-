@@ -36,6 +36,7 @@ pipeline {
             steps {
                 sh '''
                     . venv/bin/activate
+                    export PYTHONPATH=.   # Python'ın 'app' modülünü bulmasını sağlayan sihirli satır!
                     pytest tests/test_app.py \
                         -v \
                         --tb=short \
