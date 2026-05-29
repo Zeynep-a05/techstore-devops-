@@ -176,13 +176,35 @@ pipeline {
     // ── POST ACTIONS ────────────────────────────────────────────
     post {
         success {
-            echo "🎉 MÜKEMMEL! Tüm DevOps aşamaları (Build, Test, SonarQube, Docker Hub, Deploy) başarıyla tamamlandı!"
+            echo "🎉 Pipeline başarıyla tamamlandı!"
+            slackSend(
+                tokenCredentialId: 'slack-token', // Jenkins'e eklediğimiz Secret text ID'si
+                channel: env.SLACK_CHANNEL,
+                color: 'good',
+                message: """
+✅ *TechStore Deploy Başarılı*
+• Branch: `${env.BRANCH_NAME ?: 'main'}`
+• Build: `#${env.BUILD_NUMBER}`
+• Commit: `${env.GIT_COMMIT?.take(7) ?: 'N/A'}`
+• URL: ${env.BUILD_URL}
+                """
+            )
         }
         failure {
-            echo "❌ Pipeline'ın ana aşamalarından biri başarısız oldu. Lütfen loğları kontrol edin!"
+            echo "❌ Pipeline başarısız!"
+            slackSend(
+                tokenCredentialId: 'slack-token', 
+                channel: env.SLACK_CHANNEL,
+                color: 'danger',
+                message: """
+❌ *TechStore Deploy Başarısız*
+• Branch: `${env.BRANCH_NAME ?: 'main'}`
+• Build: `#${env.BUILD_NUMBER}`
+• Detay: ${env.BUILD_URL}console
+                """
+            )
         }
         always {
-            // Eski imajları temizle ve alanı boşalt
             sh "docker image prune -f --filter 'until=72h' || true"
             cleanWs()
         }
