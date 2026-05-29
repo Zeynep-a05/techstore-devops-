@@ -173,11 +173,12 @@ pipeline {
         }
     }
 
-    // ── POST ACTIONS ────────────────────────────────────────────
+   // ── POST ACTIONS ────────────────────────────────────────────
     post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
             slackSend(
+                tokenCredentialId: 'slack-token', // Az önce Jenkins'e eklediğimiz ID
                 channel: env.SLACK_CHANNEL,
                 color: 'good',
                 message: """
@@ -192,6 +193,7 @@ pipeline {
         failure {
             echo "❌ Pipeline başarısız!"
             slackSend(
+                tokenCredentialId: 'slack-token', // Aynı şekilde buraya da ekledik
                 channel: env.SLACK_CHANNEL,
                 color: 'danger',
                 message: """
@@ -202,8 +204,7 @@ pipeline {
 • Detay: ${env.BUILD_URL}console
                 """
             )
-        }
-        always {
+        } always {
             // Eski imajları temizle (son 3'ü tut)
             sh "docker image prune -f --filter 'until=72h' || true"
             cleanWs()
