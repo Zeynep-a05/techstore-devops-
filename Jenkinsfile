@@ -3,10 +3,9 @@ pipeline {
 
     environment {
         DOCKER_IMAGE    = 'techstore-app'
-        DOCKER_HUB_USER = 'kullanici-adi'          // Docker Hub kullanıcı adınız
+        DOCKER_HUB_USER = 'zeynepa05'                // Docker Hub kullanıcı adınızla eşitlendi
         SONAR_HOST      = 'http://localhost:9000'
-        SONAR_TOKEN     = credentials('sonar-token') // Jenkins Credentials'a ekleyin
-        SLACK_CHANNEL   = '#devops-techstore'
+        SONAR_TOKEN     = credentials('sonar-token') // Jenkins Credentials'daki Sonar Token
     }
 
     stages {
@@ -102,7 +101,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker-hub-creds',
+                    credentialsId: 'docker-hub-credentials', // Eklediğiniz Credential ID ile eşitlendi
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
@@ -174,41 +173,15 @@ pipeline {
     }
 
     // ── POST ACTIONS ────────────────────────────────────────────
-    // ── POST ACTIONS ────────────────────────────────────────────
     post {
         success {
-            echo "🎉 Pipeline başarıyla tamamlandı!"
-            slackSend(
-                tokenCredentialId: 'slack-token', // Az önce Jenkins'e eklediğimiz ID
-                channel: env.SLACK_CHANNEL,
-                color: 'good',
-                message: """
-✅ *TechStore Deploy Başarılı*
-• Branch: `${env.BRANCH_NAME}`
-• Build: `#${env.BUILD_NUMBER}`
-• Commit: `${env.GIT_COMMIT?.take(7)}`
-• URL: ${env.BUILD_URL}
-                """
-            )
+            echo "🎉 MÜKEMMEL! Tüm DevOps aşamaları (Build, Test, SonarQube, Docker Hub, Deploy) başarıyla tamamlandı!"
         }
         failure {
-            echo "❌ Pipeline başarısız!"
-            slackSend(
-                tokenCredentialId: 'slack-token', // Aynı şekilde buraya da ekledik
-                channel: env.SLACK_CHANNEL,
-                color: 'danger',
-                message: """
-❌ *TechStore Deploy Başarısız*
-• Branch: `${env.BRANCH_NAME}`
-• Build: `#${env.BUILD_NUMBER}`
-• Aşama: ${env.STAGE_NAME}
-• Detay: ${env.BUILD_URL}console
-                """
-            )
+            echo "❌ Pipeline'ın ana aşamalarından biri başarısız oldu. Lütfen loğları kontrol edin!"
         }
-    
         always {
-            // Eski imajları temizle (son 3'ü tut)
+            // Eski imajları temizle ve alanı boşalt
             sh "docker image prune -f --filter 'until=72h' || true"
             cleanWs()
         }
